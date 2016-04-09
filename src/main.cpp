@@ -14,5 +14,6 @@ int main(int argc, char **argv) {
     while (!!strncmp(lex.type, "EOF", strlen("EOF"))) {
         l.getNextLexeme(&lex);
     }
+    
     return 0;
 }

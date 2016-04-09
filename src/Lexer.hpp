@@ -5,6 +5,8 @@
 
 using namespace std;
 
+// No one using Lexemes will not want the Lexer class and vice-versa so just
+// put them in the same file.
 struct Lexeme {
     char const* type;
     int start;
@@ -18,8 +20,7 @@ class Lexer {
     private:
         fstream file;
         int index;
-        char curChar;
-        bool loadChar();
+        bool loadChar(char *ch);
 };
 
 #endif

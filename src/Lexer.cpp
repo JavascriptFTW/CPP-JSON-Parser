@@ -1,6 +1,7 @@
-#include "Lexer.hpp"
 #include <iostream>
 #include <fstream>
+
+#include "Lexer.hpp"
 
 using namespace std;
 
@@ -9,9 +10,12 @@ Lexer::Lexer(char const* filePath) : file(filePath) {
 };
 
 Lexeme Lexer::getNextLexeme(Lexeme *dest) {
+    char curChar;
     Lexeme lex;
     
-    if (!loadChar()) {
+    // If we've reached the end of the file (i.e. we can't load any more
+    // characters).
+    if (!loadChar(&curChar)) {
         lex.type = "EOF";
         lex.start = index;
         lex.end = index;
@@ -29,7 +33,7 @@ Lexeme Lexer::getNextLexeme(Lexeme *dest) {
     return lex;
 }
 
-bool Lexer::loadChar() {
+bool Lexer::loadChar(char *ch) {
     ++index;
-    return file >> noskipws >> curChar;
+    return file >> noskipws >> *ch;
 }
