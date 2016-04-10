@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+#include <stdlib.h>
 
 #include "Lexer.hpp"
 
@@ -10,62 +11,63 @@ Lexer::Lexer(char const* filePath) : file(filePath) {
     index = 0;
 };
 
-Lexeme Lexer::getNextLexeme(Lexeme *dest) {
-    Lexeme lex;
-    
-    lex.start = index;
+void Lexer::getNextLexeme(Lexeme *lex) {
+    lex->start = index;
     
     // If we've reached the end of the file (i.e. we can't load any more
     // characters).
     if (!loadChar()) {
-        lex.type = "EOF";
-        lex.start = index;
-        lex.end = index;
-        *dest = lex;
-        return lex;
+        lex->type = "EOF";
+        lex->end = index;
+        lex->raw = "";
+        return;
     }
+    
+    // Default to just setting the raw to the current character as that's
+    // the behavior of the majority of tokens.
+    lex->raw = current;
     
     switch (current) {
         case '{':
-            lex.type = "OpenBrace";
+            lex->type = "OpenBrace";
             break;
         case '}':
-            lex.type = "CloseBrace";
+            lex->type = "CloseBrace";
             break;
         case '"':
-            lexString(&lex);
+            lexString(lex);
             break;
         case '[':
-            lex.type = "OpenBracket";
+            lex->type = "OpenBracket";
             break;
         case ']':
-            lex.type = "CloseBracket";
+            lex->type = "CloseBracket";
             break;
         case ':':
-            lex.type = "Colon";
+            lex->type = "Colon";
             break;
         case ',':
-            lex.type = "Comma";
+            lex->type = "Comma";
             break;
         default:
             if (current >= '0' && current <= '9' || current == '-' ||
                 current == '+') {
-                lexNumber(&lex);
+                lexNumber(lex);
             } else if (current == 't' && matchesKeyword("rue")) {
-                lex.type = "Keyword";
+                lex->type = "Keyword";
+                lex->raw = "true";
             } else if (current == 'f' && matchesKeyword("alse")) {
-                lex.type = "Keyword";
+                lex->type = "Keyword";
+                lex->raw = "false";
             } else if (current == 'n' && matchesKeyword("ull")) {
-                lex.type = "Keyword";
+                lex->type = "Keyword";
+                lex->raw = "null";
             } else {
-                lex.type = "Unknown";
+                lex->type = "Unknown";
             }
     }
     
-    lex.end = index;
-    
-    *dest = lex;
-    return lex;
+    lex->end = index;
 }
 
 bool Lexer::loadChar() {
@@ -95,24 +97,26 @@ void Lexer::lexString(Lexeme *lex) {
     
     while (loadChar() && (current != '"' && !ignore)) {
         ignore = (current == '\\');
+        lex->raw += current;
     }
+    lex->raw += current;
 }
 
 void Lexer::lexNumber(Lexeme *lex) {
     lex->type = "Number";
-    if (current == '-' || current == '+') {
-        loadCharWS();
-    }
-    eatNumberPart();
+    // Skip the first character as it was taken care of in getNextLexeme()
+    loadCharWS();
+    eatNumberPart(lex);
     if (current == 'e' || current == 'E') {
+        lex->raw += current;
         loadCharWS();
-        eatNumberPart();
+        eatNumberPart(lex);
     }
 }
 
-void Lexer::eatNumberPart() {
+void Lexer::eatNumberPart(Lexeme *lex) {
     do {
-        // TODO (Joshua): Add stuff to token raw value here.
+        lex->raw += current;
     } while (loadCharWS() && ((current >= '0' && current <= '9') ||
         current == '.'));
 }

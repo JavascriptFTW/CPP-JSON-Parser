@@ -11,9 +11,10 @@ int main(int argc, char **argv) {
     
     Lexer l(argv[1]);
     Lexeme lex;
+    
     while (!!strncmp(lex.type, "EOF", strlen("EOF"))) {
         l.getNextLexeme(&lex);
-        cout << lex.start << " " << lex.type << " " << lex.end << endl;
+        cout << lex.start << " " << lex.raw << " " << lex.end << endl;
     }
     
     return 0;

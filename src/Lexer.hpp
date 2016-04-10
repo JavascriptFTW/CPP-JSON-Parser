@@ -2,6 +2,7 @@
 #define __LEXER_H_
 
 #include <fstream>
+#include <string.h>
 
 using namespace std;
 
@@ -9,6 +10,7 @@ using namespace std;
 // put them in the same file.
 struct Lexeme {
     char const* type;
+    string raw;
     int start;
     int end;
 };
@@ -16,7 +18,7 @@ struct Lexeme {
 class Lexer {
     public:
         Lexer(char const* filePath);
-        Lexeme getNextLexeme(Lexeme *dest);
+        void getNextLexeme(Lexeme *dest);
     private:
         char current;
         fstream file;
@@ -26,7 +28,7 @@ class Lexer {
         bool isEmpty(char ch);
         void lexString(Lexeme *lex);
         void lexNumber(Lexeme *lex);
-        void eatNumberPart();
+        void eatNumberPart(Lexeme *lex);
         bool matchesKeyword(char const* keyword);
 };
 
