@@ -18,9 +18,16 @@ class Lexer {
         Lexer(char const* filePath);
         Lexeme getNextLexeme(Lexeme *dest);
     private:
+        char current;
         fstream file;
         int index;
-        bool loadChar(char *ch);
+        bool loadChar();
+        bool loadCharWS();
+        bool isEmpty(char ch);
+        void lexString(Lexeme *lex);
+        void lexNumber(Lexeme *lex);
+        void eatNumberPart();
+        bool matchesKeyword(char const* keyword);
 };
 
 #endif
